@@ -105,25 +105,37 @@ async function fetchRealPlanetData(){
 }
 fetchRealPlanetData(); setInterval(fetchRealPlanetData,120000);
 
-// --- Лівий графік (вени) внизу ---
-function drawVenGraph(){
-  const marginX=16, marginY=canvas.height-50;
+// --- Лівий графік (офіційна сітка з підписами) ---
+function drawLeftGrid(){
+  const margin=16, width=180, height=120;
+  ctx.save();
+  ctx.translate(margin, canvas.height-margin-height);
+  // Сітка
+  ctx.strokeStyle='rgba(0,180,255,0.3)';
+  ctx.lineWidth=1;
+  for(let i=0;i<=5;i++){
+    const y=i*height/5;
+    ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(width,y); ctx.stroke();
+  }
+  for(let i=0;i<=5;i++){
+    const x=i*width/5;
+    ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,height); ctx.stroke();
+  }
+  // Дані
   const keys=Object.keys(realData);
   keys.forEach((k,i)=>{
-    const x=marginX + i*50;
-    const y=marginY;
-    const length=realData[k]*40;
-    ctx.strokeStyle=`rgba(0,255,180,0.8)`;
-    ctx.lineWidth=2;
+    const val=realData[k];
+    const x=i*(width/(keys.length-1));
+    const y=height-val*height;
     ctx.beginPath();
-    ctx.moveTo(x,y);
-    ctx.bezierCurveTo(x-5,y-length/2,x+5,y-length/2,x,y-length);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.arc(x,y-length,3,0,Math.PI*2);
-    ctx.fillStyle=`rgba(0,255,180,0.85)`;
+    ctx.arc(x,y,3,0,Math.PI*2);
+    ctx.fillStyle='rgba(0,255,180,0.9)';
     ctx.fill();
+    ctx.fillStyle='#0af';
+    ctx.font='9px Courier New';
+    ctx.fillText(k,x-15,height+12);
   });
+  ctx.restore();
 }
 
 // --- Формули ---
@@ -145,7 +157,7 @@ function loop(){
     ctx.fillRect(s.x,s.y,s.size,s.size);
   });
 
-  // --- Пульсуюча сітка ---
+  // Пульсуюча сітка
   const gridSpacing=30;
   for(let gx=0; gx<canvas.width; gx+=gridSpacing){
     for(let gy=0; gy<canvas.height; gy+=gridSpacing){
@@ -182,8 +194,8 @@ function loop(){
     ctx.fillText(f.text,f.x+Math.sin(t+f.phase)*20,f.y+Math.cos(t+f.phase)*15);
   });
 
-  // Лівий графік (вени)
-  drawVenGraph();
+  // Лівий графік
+  drawLeftGrid();
 
   // Анімація блобів
   const avg=blobs.reduce((s,b)=>s + (realData[b.param]||0.5),0)/blobs.length;
@@ -206,4 +218,5 @@ loop();
 </script>
 </body>
 </html>
+
 
